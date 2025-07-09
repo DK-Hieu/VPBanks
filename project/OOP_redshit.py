@@ -2,7 +2,6 @@
 Code theo OOP dánh cho nhiều server > 1 proc 
 '''
 
-import dask.dataframe as dd
 import pandas as pd
 import numpy as np
 import os
