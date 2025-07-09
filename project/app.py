@@ -81,7 +81,7 @@ hd_cust_sta.reset_index(inplace=True)
 # --- Nút chọn dataset với mặc định ---
 option = st.radio(
     "Chọn dataset để hiển thị:",
-    ("Full", "75%"),
+    ("Full", "10 ngày đầu tiên "),
     index=0  # 👈 mặc định chọn "Full"
 )
 
@@ -90,7 +90,7 @@ if option == "Full":
     filtered_df = hd_cust
     chart_title = "📈 Chart Full Dataset"
 else:
-    filtered_df = hd_cust[hd_cust["cashin_datediff"] >= hd_cust["custodycd_count"].quantile(0.75)]
+    filtered_df = hd_cust[hd_cust["cashin_datediff"] <= 10]
     chart_title = "📉 Chart 75% Dataset"
 
 fig = px.bar(filtered_df, x="cashin_datediff", y="custodycd_count", title= chart_title)
