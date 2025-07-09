@@ -47,28 +47,28 @@ fig = px.histogram(hd[hd['cashin']<=hd_sta['cashin']['75%']], x="cashin")
 st.plotly_chart(fig, use_container_width=True)
 
 # ###############################
-# st.title("Độ tương quan giữa thời gian chờ khách nạp lần đầu vs giá trị tiền nạp lần đầu")
+st.title("Độ tương quan giữa thời gian chờ khách nạp lần đầu vs giá trị tiền nạp lần đầu")
 
-# hd_cash_date = hd[hd['cashin'] <= 10*10**9][['custodycd','cashin','cashin_datediff']]
+hd_cash_date = hd[hd['cashin'] <= 10*10**9][['custodycd','cashin','cashin_datediff']]
 
-# # --- Nút chọn dataset với mặc định ---
-# option = st.radio(
-#     "Chọn dataset để hiển thị:",
-#     ("Full", "Filter (max 10B)"),
-#     index=0  # 👈 mặc định chọn "Full"
-# )
+# --- Nút chọn dataset với mặc định ---
+option = st.radio(
+    "Chọn dataset để hiển thị:",
+    ("Full", "Filter (max 10B)"),
+    index=0  # 👈 mặc định chọn "Full"
+)
 
-# # --- Lọc dữ liệu và hiển thị chart ---
-# if option == "Full":
-#     filtered_df = hd
-#     chart_title = "📈 Chart Full Dataset"
-# else:
-#     filtered_df = hd_cash_date
-#     chart_title = "📉 Chart Filter with max value 10x10^9 Dataset"
+# --- Lọc dữ liệu và hiển thị chart ---
+if option == "Full":
+    filtered_df = hd
+    chart_title = "📈 Chart Full Dataset"
+else:
+    filtered_df = hd_cash_date
+    chart_title = "📉 Chart Filter with max value 10x10^9 Dataset"
     
-# fig = px.scatter(filtered_df, x="cashin_datediff", y="cashin",title= chart_title)
+fig = px.scatter(filtered_df, x="cashin_datediff", y="cashin",title= chart_title)
 
-# st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, use_container_width=True)
 
 # ##############################
 # # --- Cấu hình trang ---
