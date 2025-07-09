@@ -39,65 +39,65 @@ fig = px.histogram(hd[hd['cashin_datediff']<=hd_sta['cashin_datediff']['75%']], 
 
 st.plotly_chart(fig, use_container_width=True)
 
-###############################
-st.title("Phân bổ giá trị tiền nạp lần đầu của khách hàng")
+# ###############################
+# st.title("Phân bổ giá trị tiền nạp lần đầu của khách hàng")
 
-fig = px.histogram(hd[hd['cashin']<=hd_sta['cashin']['75%']], x="cashin")
+# fig = px.histogram(hd[hd['cashin']<=hd_sta['cashin']['75%']], x="cashin")
 
-st.plotly_chart(fig, use_container_width=True)
+# st.plotly_chart(fig, use_container_width=True)
 
-###############################
-st.title("Độ tương quan giữa thời gian chờ khách nạp lần đầu vs giá trị tiền nạp lần đầu")
+# ###############################
+# st.title("Độ tương quan giữa thời gian chờ khách nạp lần đầu vs giá trị tiền nạp lần đầu")
 
-hd_cash_date = hd[hd['cashin'] <= 10*10**9][['custodycd','cashin','cashin_datediff']]
+# hd_cash_date = hd[hd['cashin'] <= 10*10**9][['custodycd','cashin','cashin_datediff']]
 
-# --- Nút chọn dataset với mặc định ---
-option = st.radio(
-    "Chọn dataset để hiển thị:",
-    ("Full", "Filter (max 10B)"),
-    index=0  # 👈 mặc định chọn "Full"
-)
+# # --- Nút chọn dataset với mặc định ---
+# option = st.radio(
+#     "Chọn dataset để hiển thị:",
+#     ("Full", "Filter (max 10B)"),
+#     index=0  # 👈 mặc định chọn "Full"
+# )
 
-# --- Lọc dữ liệu và hiển thị chart ---
-if option == "Full":
-    filtered_df = hd
-    chart_title = "📈 Chart Full Dataset"
-else:
-    filtered_df = hd_cash_date
-    chart_title = "📉 Chart Filter with max value 10x10^9 Dataset"
+# # --- Lọc dữ liệu và hiển thị chart ---
+# if option == "Full":
+#     filtered_df = hd
+#     chart_title = "📈 Chart Full Dataset"
+# else:
+#     filtered_df = hd_cash_date
+#     chart_title = "📉 Chart Filter with max value 10x10^9 Dataset"
     
-fig = px.scatter(filtered_df, x="cashin_datediff", y="cashin",title= chart_title)
+# fig = px.scatter(filtered_df, x="cashin_datediff", y="cashin",title= chart_title)
 
-st.plotly_chart(fig, use_container_width=True)
+# st.plotly_chart(fig, use_container_width=True)
 
-##############################
-# --- Cấu hình trang ---
-st.title("📊 Số lượng khách hàng nạp tiền vào tài khoản theo khoảng thời gian")
+# ##############################
+# # --- Cấu hình trang ---
+# st.title("📊 Số lượng khách hàng nạp tiền vào tài khoản theo khoảng thời gian")
 
-hd_cust = hd.groupby('cashin_datediff').agg(custodycd_count = ('custodycd','count'))
-hd_cust.reset_index(inplace=True)
-hd_cust_sta = hd_cust.describe()
-hd_cust_sta.reset_index(inplace=True)
+# hd_cust = hd.groupby('cashin_datediff').agg(custodycd_count = ('custodycd','count'))
+# hd_cust.reset_index(inplace=True)
+# hd_cust_sta = hd_cust.describe()
+# hd_cust_sta.reset_index(inplace=True)
 
-# --- Nút chọn dataset với mặc định ---
-option = st.radio(
-    "Chọn dataset để hiển thị:",
-    ("Full", "75%"),
-    index=0  # 👈 mặc định chọn "Full"
-)
+# # --- Nút chọn dataset với mặc định ---
+# option = st.radio(
+#     "Chọn dataset để hiển thị:",
+#     ("Full", "75%"),
+#     index=0  # 👈 mặc định chọn "Full"
+# )
 
-# --- Lọc dữ liệu và hiển thị chart ---
-if option == "Full":
-    filtered_df = hd_cust
-    chart_title = "📈 Chart Full Dataset"
-else:
-    filtered_df = hd_cust[hd_cust["cashin_datediff"] >= hd_cust["custodycd_count"].quantile(0.75)]
-    chart_title = "📉 Chart 75% Dataset"
+# # --- Lọc dữ liệu và hiển thị chart ---
+# if option == "Full":
+#     filtered_df = hd_cust
+#     chart_title = "📈 Chart Full Dataset"
+# else:
+#     filtered_df = hd_cust[hd_cust["cashin_datediff"] >= hd_cust["custodycd_count"].quantile(0.75)]
+#     chart_title = "📉 Chart 75% Dataset"
 
 
-fig = px.bar(filtered_df, x="cashin_datediff", y="custodycd_count", title= chart_title)
+# fig = px.bar(filtered_df, x="cashin_datediff", y="custodycd_count", title= chart_title)
 
-st.plotly_chart(fig, use_container_width=True)
+# st.plotly_chart(fig, use_container_width=True)
 
 
 # fig = px.box(df, x="time", y="total_bill")
