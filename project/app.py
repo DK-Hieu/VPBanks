@@ -14,69 +14,26 @@ DIR = os.path.dirname(__file__)
 csv_path = os.path.join(DIR, "job_pt.csv")
 
 hd = pd.read_csv(csv_path)
-hd['opndate'] = pd.to_datetime(hd['opndate'],format='%Y-%m-%d').dt.date
-hd['cash_in_date'] = pd.to_datetime(hd['cash_in_date'],format='%Y-%m-%d').dt.date
+hd['opndate'] = pd.to_datetime(hd['opndate'],format='%Y-%m-%d')
+hd['cash_in_date'] = pd.to_datetime(hd['cash_in_date'],format='%Y-%m-%d')
 del hd['Unnamed: 0']
 
-st.title('Thống kê mô tả cơ bản')
-'''
-Mẫu dữ liệu
-'''
-st.table(hd.head(10))
+st.title('Phân tích cơ bản Khoảng thời gian user nạp tiền lần đầu với Neo Invest')
 
-'''
-Mô tả thống kê
-'''
-hd_sta = hd.describe()
+st.header('Mẫu dữ liệu')
+st.table(hd.head(5))
 
-st.table(hd_sta)
-
-hd.describe()
 ###############################
-st.title("Phân bổ thời gian chờ khách hàng nạp tiền lần đầu")
+st.header("📊 Số lượng khách hàng nạp tiền vào tài khoản theo khoảng thời gian")
 
-fig = px.histogram(hd[hd['cashin_datediff']<=hd_sta['cashin_datediff']['75%']], x="cashin_datediff")
-
-st.plotly_chart(fig, use_container_width=True)
-
-# ###############################
-st.title("Phân bổ giá trị tiền nạp lần đầu của khách hàng")
-
-fig = px.histogram(hd[hd['cashin']<=hd_sta['cashin']['75%']], x="cashin")
-
-st.plotly_chart(fig, use_container_width=True)
-
-# ###############################
-st.title("Độ tương quan giữa thời gian chờ khách nạp lần đầu vs giá trị tiền nạp lần đầu")
-
-hd_cash_date = hd[hd['cashin'] <= 10*10**9][['custodycd','cashin','cashin_datediff']]
-
-# --- Nút chọn dataset với mặc định ---
-option = st.radio(
-    "Chọn dataset để hiển thị:",
-    ("Full", "Filter (max 10B)"),
-    index=0  # 👈 mặc định chọn "Full"
-)
-
-# --- Lọc dữ liệu và hiển thị chart ---
-if option == "Full":
-    filtered_df = hd
-    chart_title = "📈 Chart Full Dataset"
-else:
-    filtered_df = hd_cash_date
-    chart_title = "📉 Chart Filter with max value 10x10^9 Dataset"
-    
-fig = px.scatter(filtered_df, x="cashin_datediff", y="cashin",title= chart_title)
-
-st.plotly_chart(fig, use_container_width=True)
-
-# ##############################
-st.title("📊 Số lượng khách hàng nạp tiền vào tài khoản theo khoảng thời gian")
-
-hd_cust = hd.groupby('cashin_datediff').agg(custodycd_count = ('custodycd','count'))
+hd_cust = hd.groupby('cashin_datediff').agg(custodycd_count = ('custodycd','nunique'))
 hd_cust.reset_index(inplace=True)
 hd_cust_sta = hd_cust.describe()
 hd_cust_sta.reset_index(inplace=True)
+
+hd_cust_table = hd_cust.copy()
+hd_cust_table.sort_values(by='custodycd_count',ascending=False,inplace=True)
+hd_cust_table.rename(columns={'cashin_datediff':'Thời gian đợi (Ngày)','custodycd_count':'Số lượng khách hàng'},inplace=True)
 
 # --- Nút chọn dataset với mặc định ---
 option = st.radio(
@@ -97,6 +54,60 @@ fig = px.bar(filtered_df, x="cashin_datediff", y="custodycd_count", title= chart
 
 st.plotly_chart(fig, use_container_width=True)
 
+st.table(hd_cust_table.head(10))
+
+# ###############################
+st.header("Phân bổ giá trị tiền nạp lần đầu của khách hàng")
+
+hd_sta = hd.describe()
+
+fig = px.histogram(hd[hd['cashin']<=hd_sta['cashin']['75%']], x="cashin")
+
+st.plotly_chart(fig, use_container_width=True)
+
+# ###############################
+st.header(" Độ tương quan giữa thời gian chờ khách nạp lần đầu vs giá trị tiền nạp lần đầu")
+
+hd_cash_date = hd[hd['cashin'] <= 10*10**9][['custodycd','cashin','cashin_datediff']]
+
+# --- Nút chọn dataset với mặc định ---
+option = st.radio(
+    "Chọn dataset để hiển thị:",
+    ("Full", "Filter (max 10B)"),
+    index=1  # 👈 mặc định chọn "Full"
+)
+
+# --- Lọc dữ liệu và hiển thị chart ---
+if option == "Full":
+    filtered_df = hd
+    chart_title = "📈 Chart Full Dataset"
+else:
+    filtered_df = hd_cash_date
+    chart_title = "📉 Chart Filter with max value 10x10^9 Dataset"
+    
+fig = px.scatter(filtered_df, x="cashin_datediff", y="cashin",title= chart_title)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# ##############################
+
+hd_time_year = hd[['opndate','custodycd','cashin','cashin_datediff']]
+hd_time_year['yeardf'] = hd_time_year['opndate'].dt.year
+hd_time_year.sort_values(by='yeardf', ascending=True,inplace=True)
+hd_time_year['yeardf'] = hd_time_year['yeardf'].astype('str')
+hd_time_year = hd_time_year[hd_time_year['cashin'] <= 10*10**9]
+
+
+
+st.header("Phân bố thời gian chờ qua từng năm")
+fig = px.box(hd_time_year, x="cashin_datediff", color="yeardf")
+
+st.plotly_chart(fig, use_container_width=True)
+
+st.header("Phân bố giá trị nạp tiền lần đầu của khách hàng qua từng năm")
+fig = px.box(hd_time_year, x="cashin", color="yeardf")
+
+st.plotly_chart(fig, use_container_width=True)
 
 # fig = px.box(df, x="time", y="total_bill")
 # st.plotly_chart(fig, use_container_width=True)
